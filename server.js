@@ -59,14 +59,16 @@ const server = createServer(async (req, res) => {
         const prompt = craftPrompt(dream)
         console.log('Generating image with prompt:', prompt.substring(0, 100) + '...')
 
+        // Using fal-ai/flux-2/edit model
         const result = await fal.subscribe('fal-ai/flux-2/edit', {
           input: {
             prompt,
             image_urls: [image],
-            guidance_scale: 3.5,
+            guidance_scale: 2.5,
             num_inference_steps: 28,
             image_size: 'portrait_4_3',
             num_images: 1,
+            acceleration: 'regular',
             enable_safety_checker: true,
             output_format: 'png',
           },

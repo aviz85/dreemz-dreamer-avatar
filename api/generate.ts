@@ -77,7 +77,7 @@ export default async function handler(request: Request): Promise<Response> {
 
     const prompt = craftPrompt(dream)
 
-    // Submit the request to fal.ai queue
+    // Submit the request to fal.ai queue (flux-2/edit model)
     const submitResponse = await fetch('https://queue.fal.run/fal-ai/flux-2/edit', {
       method: 'POST',
       headers: {
@@ -87,10 +87,11 @@ export default async function handler(request: Request): Promise<Response> {
       body: JSON.stringify({
         prompt,
         image_urls: [image],
-        guidance_scale: 3.5,
+        guidance_scale: 2.5,
         num_inference_steps: 28,
         image_size: 'portrait_4_3',
         num_images: 1,
+        acceleration: 'regular',
         enable_safety_checker: true,
         output_format: 'png',
       }),
