@@ -912,6 +912,34 @@
   animation: pulse 2s ease-in-out infinite;
 }
 
+.cost-estimation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: rgba(0, 216, 255, 0.1);
+  border: 1px solid rgba(0, 216, 255, 0.3);
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.cost-label {
+  color: var(--text-secondary);
+}
+
+.cost-value {
+  color: var(--dreemz-cyan);
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.cost-model {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
 .result-actions {
   display: flex;
   gap: 1rem;
