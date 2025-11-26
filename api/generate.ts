@@ -106,6 +106,8 @@ export default async function handler(request: Request): Promise<Response> {
     const requestId = queueData.request_id
 
     // Poll for completion using fal.ai queue API
+    // URL format: https://queue.fal.run/{app_id}/requests/{request_id}/status
+    const appId = 'fal-ai/flux-2/edit'
     let attempts = 0
     const maxAttempts = 120 // 2 minutes max
     
@@ -113,8 +115,9 @@ export default async function handler(request: Request): Promise<Response> {
       await sleep(1000)
       
       const statusResponse = await fetch(
-        `https://queue.fal.run/requests/${requestId}/status`,
+        `https://queue.fal.run/${appId}/requests/${requestId}/status`,
         {
+          method: 'GET',
           headers: { 'Authorization': `Key ${falKey}` },
         }
       )
@@ -129,8 +132,9 @@ export default async function handler(request: Request): Promise<Response> {
       if (statusData.status === 'COMPLETED') {
         // Get the result
         const resultResponse = await fetch(
-          `https://queue.fal.run/requests/${requestId}`,
+          `https://queue.fal.run/${appId}/requests/${requestId}`,
           {
+            method: 'GET',
             headers: { 'Authorization': `Key ${falKey}` },
           }
         )
