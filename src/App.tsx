@@ -70,21 +70,43 @@ function App() {
   }
 
   const startWebcam = async () => {
+    // Clear any previous state
+    setError(null)
+    setSelectedImage(null)
+    setGeneratedImage(null)
+    
     try {
+      // Check if mediaDevices is available
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        setError('Webcam is not supported in this browser. Please use Chrome, Firefox, or Safari.')
+        return
+      }
+      
       const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'user', width: 640, height: 480 } 
+        video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } } 
       })
+      
       if (videoRef.current) {
         videoRef.current.srcObject = stream
         streamRef.current = stream
         setIsWebcamActive(true)
         setImageSource('webcam')
-        setSelectedImage(null)
-        setGeneratedImage(null)
-        setError(null)
       }
-    } catch {
-      setError('Unable to access webcam. Please check permissions.')
+    } catch (err) {
+      console.error('Webcam error:', err)
+      if (err instanceof Error) {
+        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+          setError('Camera access denied. Please allow camera permissions in your browser settings.')
+        } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+          setError('No camera found. Please connect a webcam and try again.')
+        } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+          setError('Camera is in use by another application. Please close other apps using the camera.')
+        } else {
+          setError(`Unable to access webcam: ${err.message}`)
+        }
+      } else {
+        setError('Unable to access webcam. Please check permissions.')
+      }
     }
   }
 
