@@ -10,14 +10,14 @@ interface RequestBody {
 }
 
 function craftPrompt(dream: string): string {
-  return `Close-up portrait photo of this person ${dream}. 
-IMPORTANT: Keep the face large and clearly visible, taking up at least 40% of the frame.
-This is a headshot/portrait composition - the person's face and upper body should be the main focus.
-Add dreamlike background elements and environment that suggest "${dream}" while keeping the person as the dominant subject.
-Maintain exact facial features, skin tone, and likeness of the original person.
-Cinematic lighting on the face, dramatic atmosphere, photorealistic, magazine cover quality portrait.
-The expression should show joy, wonder, and fulfillment of achieving this dream.
-8k resolution, sharp focus on face, professional portrait photography.`
+  return `Cinematic portrait of this person ${dream}.
+Show the person from chest/shoulders up, naturally integrated into the dream scene.
+The face should be clearly recognizable and well-lit, taking about 25-30% of the frame.
+Create a balanced composition where both the person AND the "${dream}" environment are equally important.
+The person should appear to be genuinely IN the scene, not just pasted on top.
+Maintain the exact facial features and likeness of the original person.
+Dramatic cinematic lighting, photorealistic, epic movie poster quality.
+Expression showing wonder, joy and achievement. 8k, sharp details.`
 }
 
 export default async function handler(request: Request): Promise<Response> {

@@ -1,4 +1,4 @@
-# Dream Visualizer ✨
+# Dreemizer ✨
 
 Transform your portrait into a vision of your dreams using AI.
 

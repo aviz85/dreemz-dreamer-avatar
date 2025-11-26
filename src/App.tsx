@@ -177,7 +177,7 @@ function App() {
       <header className="header">
         <h1 className="title">
           <span className="title-icon">✨</span>
-          Dream Visualizer
+          Dreemizer
         </h1>
         <p className="subtitle">Transform your portrait into a vision of your dreams</p>
       </header>
