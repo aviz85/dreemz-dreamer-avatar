@@ -96,9 +96,13 @@ function App() {
       canvas.height = video.videoHeight
       const ctx = canvas.getContext('2d')
       if (ctx) {
+        // Mirror the image horizontally to match the preview
+        ctx.translate(canvas.width, 0)
+        ctx.scale(-1, 1)
         ctx.drawImage(video, 0, 0)
         const dataUrl = canvas.toDataURL('image/jpeg', 0.9)
         setSelectedImage(dataUrl)
+        setImageSource('webcam')
         stopWebcam()
       }
     }
@@ -293,11 +297,12 @@ function App() {
                 </button>
                 
                 <button 
-                  className={`source-btn ${imageSource === 'webcam' || isWebcamActive ? 'active' : ''}`}
-                  onClick={isWebcamActive ? capturePhoto : startWebcam}
+                  className={`source-btn ${isWebcamActive ? 'active' : ''}`}
+                  onClick={startWebcam}
+                  disabled={isWebcamActive}
                 >
-                  <span className="source-icon">{isWebcamActive ? '📸' : '🎥'}</span>
-                  <span className="source-label">{isWebcamActive ? 'Capture' : 'Use Webcam'}</span>
+                  <span className="source-icon">🎥</span>
+                  <span className="source-label">Use Webcam</span>
                 </button>
                 
                 <input
@@ -318,7 +323,12 @@ function App() {
                     muted
                     className="webcam-video"
                   />
-                  <button onClick={stopWebcam} className="webcam-close">✕</button>
+                  <button onClick={stopWebcam} className="webcam-close" title="Close camera">✕</button>
+                  <div className="webcam-controls">
+                    <button onClick={capturePhoto} className="shutter-btn" title="Take photo">
+                      <span className="shutter-inner"></span>
+                    </button>
+                  </div>
                 </div>
               )}
               <canvas ref={canvasRef} style={{ display: 'none' }} />
