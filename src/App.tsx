@@ -9,12 +9,12 @@ interface GeneratedImage {
   dream: string
 }
 
-// Pricing:
-// FLUX 2 Edit: $0.012/MP for input + output. Input resized to 1MP, output portrait_4_3 ~0.78MP = ~$0.021
-// Nano Banana Pro: $0.134 per 1K/2K image
+// Actual pricing from usage:
+// FLUX 2 Edit: ~$0.024 per image
+// Nano Banana Pro: ~$0.15 per image
 const MODELS = [
-  { id: 'flux-2-edit' as ModelType, name: 'FLUX 2 Edit', description: 'High quality, slower', costPerImage: 0.021 },
-  { id: 'nano-banana-pro' as ModelType, name: 'Nano Banana Pro', description: 'Fast, good quality', costPerImage: 0.134 },
+  { id: 'flux-2-edit' as ModelType, name: 'FLUX 2 Edit', description: 'High quality, slower', costPerImage: 0.024 },
+  { id: 'nano-banana-pro' as ModelType, name: 'Nano Banana Pro', description: 'Fast, good quality', costPerImage: 0.15 },
 ]
 
 const DREAM_EXAMPLES = [
