@@ -2,11 +2,17 @@ import { useState, useRef, useCallback } from 'react'
 import './App.css'
 
 type ImageSource = 'upload' | 'webcam' | 'example' | null
+type ModelType = 'flux-2-edit' | 'nano-banana-pro'
 
 interface GeneratedImage {
   url: string
   dream: string
 }
+
+const MODELS = [
+  { id: 'flux-2-edit' as ModelType, name: 'FLUX 2 Edit', description: 'High quality, slower' },
+  { id: 'nano-banana-pro' as ModelType, name: 'Nano Banana Pro', description: 'Fast, good quality' },
+]
 
 const DREAM_EXAMPLES = [
   "Flying through the clouds",
@@ -48,6 +54,8 @@ function App() {
   const [error, setError] = useState<string | null>(null)
   const [isWebcamActive, setIsWebcamActive] = useState(false)
   const [magicPhrase, setMagicPhrase] = useState(MAGIC_PHRASES[0])
+  const [selectedModel, setSelectedModel] = useState<ModelType>('nano-banana-pro')
+  const [showSettings, setShowSettings] = useState(false)
   
   const fileInputRef = useRef<HTMLInputElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -194,6 +202,7 @@ function App() {
         body: JSON.stringify({
           image: selectedImage,
           dream: dream.trim(),
+          model: selectedModel,
         }),
       })
 
@@ -236,6 +245,33 @@ function App() {
         <img src="/dreemz-logo.png" alt="Dreemz" className="logo" />
         <h1 className="title">Dreemizer</h1>
         <p className="subtitle">Transform your portrait into a vision of your dreams</p>
+        <button 
+          className="settings-toggle"
+          onClick={() => setShowSettings(!showSettings)}
+          title="Settings"
+        >
+          ⚙️
+        </button>
+        {showSettings && (
+          <div className="settings-panel">
+            <h3>Model Selection</h3>
+            <div className="model-options">
+              {MODELS.map((model) => (
+                <label key={model.id} className={`model-option ${selectedModel === model.id ? 'selected' : ''}`}>
+                  <input
+                    type="radio"
+                    name="model"
+                    value={model.id}
+                    checked={selectedModel === model.id}
+                    onChange={() => setSelectedModel(model.id)}
+                  />
+                  <span className="model-name">{model.name}</span>
+                  <span className="model-desc">{model.description}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
       </header>
 
       <main className="main">

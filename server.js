@@ -10,6 +10,16 @@ function craftPrompt(dream) {
   return `Medium shot of this character ${dream}`
 }
 
+function getModelId(model) {
+  switch (model) {
+    case 'nano-banana-pro':
+      return 'fal-ai/nano-banana-pro/edit'
+    case 'flux-2-edit':
+    default:
+      return 'fal-ai/flux-2/edit'
+  }
+}
+
 const server = createServer(async (req, res) => {
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*')
@@ -31,7 +41,7 @@ const server = createServer(async (req, res) => {
 
     req.on('end', async () => {
       try {
-        const { image, dream } = JSON.parse(body)
+        const { image, dream, model = 'nano-banana-pro' } = JSON.parse(body)
 
         if (!image || !dream) {
           res.writeHead(400, { 'Content-Type': 'application/json' })
@@ -49,10 +59,11 @@ const server = createServer(async (req, res) => {
         fal.config({ credentials: falKey })
 
         const prompt = craftPrompt(dream)
-        console.log('Generating image with prompt:', prompt.substring(0, 100) + '...')
+        const modelId = getModelId(model)
+        console.log(`Generating image with model: ${modelId}`)
+        console.log('Prompt:', prompt.substring(0, 100) + '...')
 
-        // Using fal-ai/flux-2/edit model
-        const result = await fal.subscribe('fal-ai/flux-2/edit', {
+        const result = await fal.subscribe(modelId, {
           input: {
             prompt,
             image_urls: [image],
@@ -82,7 +93,7 @@ const server = createServer(async (req, res) => {
 
         console.log('Image generated successfully!')
         res.writeHead(200, { 'Content-Type': 'application/json' })
-        res.end(JSON.stringify({ imageUrl, prompt }))
+        res.end(JSON.stringify({ imageUrl, prompt, model }))
       } catch (error) {
         console.error('Generation error:', error)
         res.writeHead(500, { 'Content-Type': 'application/json' })
@@ -99,4 +110,3 @@ server.listen(PORT, () => {
   console.log(`🚀 API server running at http://localhost:${PORT}`)
   console.log('📝 Make sure to set your FAL_KEY in .env.local')
 })
-

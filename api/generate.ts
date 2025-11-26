@@ -2,9 +2,12 @@ export const config = {
   runtime: 'edge',
 }
 
+type ModelType = 'flux-2-edit' | 'nano-banana-pro'
+
 interface RequestBody {
   image: string
   dream: string
+  model?: ModelType
 }
 
 interface FalResponse {
@@ -14,6 +17,16 @@ interface FalResponse {
 
 function craftPrompt(dream: string): string {
   return `Medium shot of this character ${dream}`
+}
+
+function getModelEndpoint(model: ModelType): string {
+  switch (model) {
+    case 'nano-banana-pro':
+      return 'https://fal.run/fal-ai/nano-banana-pro/edit'
+    case 'flux-2-edit':
+    default:
+      return 'https://fal.run/fal-ai/flux-2/edit'
+  }
 }
 
 export default async function handler(request: Request): Promise<Response> {
@@ -45,7 +58,7 @@ export default async function handler(request: Request): Promise<Response> {
 
   try {
     const body: RequestBody = await request.json()
-    const { image, dream } = body
+    const { image, dream, model = 'nano-banana-pro' } = body
 
     if (!image || !dream) {
       return new Response(
@@ -55,10 +68,10 @@ export default async function handler(request: Request): Promise<Response> {
     }
 
     const prompt = craftPrompt(dream)
+    const endpoint = getModelEndpoint(model)
 
     // Use synchronous fal.ai endpoint (fal.run instead of queue.fal.run)
-    // This blocks until the result is ready - simpler than polling
-    const response = await fetch('https://fal.run/fal-ai/flux-2/edit', {
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Authorization': `Key ${falKey}`,
@@ -89,7 +102,7 @@ export default async function handler(request: Request): Promise<Response> {
       throw new Error('No image in response')
     }
 
-    return new Response(JSON.stringify({ imageUrl, prompt }), {
+    return new Response(JSON.stringify({ imageUrl, prompt, model }), {
       status: 200,
       headers: { 'Content-Type': 'application/json', ...corsHeaders },
     })
