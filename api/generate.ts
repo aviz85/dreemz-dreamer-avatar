@@ -7,18 +7,9 @@ interface RequestBody {
   dream: string
 }
 
-interface FalQueueResponse {
-  request_id: string
-  status: string
-}
-
-interface FalStatusResponse {
-  status: 'IN_QUEUE' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED'
-  response_url?: string
-}
-
-interface FalResultResponse {
+interface FalResponse {
   images?: Array<{ url: string }>
+  prompt?: string
 }
 
 function craftPrompt(dream: string): string {
@@ -31,10 +22,6 @@ Natural pose and body language as if actually performing the activity.
 Environment should wrap around the person naturally with correct perspective, lighting, and scale.
 Expression showing genuine emotion (joy, wonder, excitement) but SAME PERSON's face.
 Photorealistic, natural lighting matching the scene, sharp focus, 8k quality. Like a National Geographic or sports photography shot.`
-}
-
-async function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms))
 }
 
 export default async function handler(request: Request): Promise<Response> {
@@ -77,8 +64,9 @@ export default async function handler(request: Request): Promise<Response> {
 
     const prompt = craftPrompt(dream)
 
-    // Submit the request to fal.ai queue (flux-2/edit model)
-    const submitResponse = await fetch('https://queue.fal.run/fal-ai/flux-2/edit', {
+    // Use synchronous fal.ai endpoint (fal.run instead of queue.fal.run)
+    // This blocks until the result is ready - simpler than polling
+    const response = await fetch('https://fal.run/fal-ai/flux-2/edit', {
       method: 'POST',
       headers: {
         'Authorization': `Key ${falKey}`,
@@ -97,73 +85,22 @@ export default async function handler(request: Request): Promise<Response> {
       }),
     })
 
-    if (!submitResponse.ok) {
-      const errorText = await submitResponse.text()
-      throw new Error(`Failed to submit request: ${errorText}`)
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new Error(`Fal.ai error: ${errorText}`)
     }
 
-    const queueData: FalQueueResponse = await submitResponse.json()
-    const requestId = queueData.request_id
+    const result: FalResponse = await response.json()
+    const imageUrl = result.images?.[0]?.url
 
-    // Poll for completion using fal.ai queue API
-    // URL format: https://queue.fal.run/{app_id}/requests/{request_id}/status
-    const appId = 'fal-ai/flux-2/edit'
-    let attempts = 0
-    const maxAttempts = 120 // 2 minutes max
-    
-    while (attempts < maxAttempts) {
-      await sleep(1000)
-      
-      const statusResponse = await fetch(
-        `https://queue.fal.run/${appId}/requests/${requestId}/status`,
-        {
-          method: 'GET',
-          headers: { 'Authorization': `Key ${falKey}` },
-        }
-      )
-
-      if (!statusResponse.ok) {
-        const statusError = await statusResponse.text()
-        throw new Error(`Failed to check status: ${statusError}`)
-      }
-
-      const statusData: FalStatusResponse = await statusResponse.json()
-
-      if (statusData.status === 'COMPLETED') {
-        // Get the result
-        const resultResponse = await fetch(
-          `https://queue.fal.run/${appId}/requests/${requestId}`,
-          {
-            method: 'GET',
-            headers: { 'Authorization': `Key ${falKey}` },
-          }
-        )
-
-        if (!resultResponse.ok) {
-          throw new Error('Failed to get result')
-        }
-
-        const resultData: FalResultResponse = await resultResponse.json()
-        const imageUrl = resultData.images?.[0]?.url
-
-        if (!imageUrl) {
-          throw new Error('No image in response')
-        }
-
-        return new Response(JSON.stringify({ imageUrl, prompt }), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json', ...corsHeaders },
-        })
-      }
-
-      if (statusData.status === 'FAILED') {
-        throw new Error('Image generation failed')
-      }
-
-      attempts++
+    if (!imageUrl) {
+      throw new Error('No image in response')
     }
 
-    throw new Error('Request timed out')
+    return new Response(JSON.stringify({ imageUrl, prompt }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders },
+    })
   } catch (error) {
     console.error('Generation error:', error)
     return new Response(
