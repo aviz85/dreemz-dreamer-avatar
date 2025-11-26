@@ -21,6 +21,17 @@ Ultra high quality, cinematic lighting, professional photography, 8k resolution.
 }
 
 export default async function handler(request: Request): Promise<Response> {
+  if (request.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      },
+    })
+  }
+
   if (request.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
       status: 405,
@@ -100,4 +111,3 @@ export default async function handler(request: Request): Promise<Response> {
     )
   }
 }
-
