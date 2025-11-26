@@ -7,15 +7,7 @@ config({ path: '.env.local' })
 const PORT = 3001
 
 function craftPrompt(dream) {
-  return `Realistic photograph of this EXACT SAME PERSON actually ${dream}.
-CRITICAL IDENTITY: Must be the SAME INDIVIDUAL - preserve exact face structure, nose, eyes, skin tone, hair. Identity-preserving edit.
-SHOT TYPE: Medium close-up shot (from waist or chest up). NOT a floating head, NOT a portrait overlay. The person has a FULL BODY naturally positioned in the real scene.
-REALISM: This must look like a real candid photograph taken in the moment - the person is physically THERE, doing the activity, interacting with the environment.
-The person should be wearing appropriate clothing/gear for the activity "${dream}".
-Natural pose and body language as if actually performing the activity.
-Environment should wrap around the person naturally with correct perspective, lighting, and scale.
-Expression showing genuine emotion (joy, wonder, excitement) but SAME PERSON's face.
-Photorealistic, natural lighting matching the scene, sharp focus, 8k quality. Like a National Geographic or sports photography shot.`
+  return `Make this character ${dream}`
 }
 
 const server = createServer(async (req, res) => {
