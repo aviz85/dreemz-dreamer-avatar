@@ -6,8 +6,12 @@ config({ path: '.env.local' })
 
 const PORT = 3001
 
-function craftPrompt(dream) {
-  return `Medium shot of this character ${dream}`
+const DREAM_PLACEHOLDER = '{{DREAM}}'
+const DEFAULT_PROMPT_TEMPLATE = `Medium shot of this character ${DREAM_PLACEHOLDER}`
+
+function craftPrompt(dream, template) {
+  const promptTemplate = template || DEFAULT_PROMPT_TEMPLATE
+  return promptTemplate.replace(DREAM_PLACEHOLDER, dream)
 }
 
 function getModelId(model) {
@@ -41,7 +45,7 @@ const server = createServer(async (req, res) => {
 
     req.on('end', async () => {
       try {
-        const { image, dream, model = 'nano-banana-pro' } = JSON.parse(body)
+        const { image, dream, model = 'nano-banana-pro', promptTemplate } = JSON.parse(body)
 
         if (!image || !dream) {
           res.writeHead(400, { 'Content-Type': 'application/json' })
@@ -58,7 +62,7 @@ const server = createServer(async (req, res) => {
 
         fal.config({ credentials: falKey })
 
-        const prompt = craftPrompt(dream)
+        const prompt = craftPrompt(dream, promptTemplate)
         const modelId = getModelId(model)
         console.log(`Generating image with model: ${modelId}`)
         console.log('Prompt:', prompt.substring(0, 100) + '...')

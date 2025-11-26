@@ -48,6 +48,9 @@ const MAGIC_PHRASES = [
   "Unlocking infinite possibilities...",
 ]
 
+const DREAM_PLACEHOLDER = '{{DREAM}}'
+const DEFAULT_PROMPT_TEMPLATE = `Medium shot of this character ${DREAM_PLACEHOLDER}`
+
 function App() {
   const [imageSource, setImageSource] = useState<ImageSource>(null)
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
@@ -59,8 +62,12 @@ function App() {
   const [magicPhrase, setMagicPhrase] = useState(MAGIC_PHRASES[0])
   const [selectedModel, setSelectedModel] = useState<ModelType>('nano-banana-pro')
   const [showSettings, setShowSettings] = useState(false)
+  const [promptTemplate, setPromptTemplate] = useState(DEFAULT_PROMPT_TEMPLATE)
+  const [editingPrompt, setEditingPrompt] = useState(DEFAULT_PROMPT_TEMPLATE)
+  const [promptError, setPromptError] = useState<string | null>(null)
   
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const promptInputRef = useRef<HTMLTextAreaElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
@@ -173,6 +180,37 @@ function App() {
     setDream(dreamText)
   }
 
+  const insertDreamPlaceholder = () => {
+    if (promptInputRef.current) {
+      const textarea = promptInputRef.current
+      const start = textarea.selectionStart
+      const end = textarea.selectionEnd
+      const newValue = editingPrompt.substring(0, start) + DREAM_PLACEHOLDER + editingPrompt.substring(end)
+      setEditingPrompt(newValue)
+      setPromptError(null)
+      // Set cursor position after the inserted placeholder
+      setTimeout(() => {
+        textarea.focus()
+        textarea.setSelectionRange(start + DREAM_PLACEHOLDER.length, start + DREAM_PLACEHOLDER.length)
+      }, 0)
+    }
+  }
+
+  const savePromptTemplate = () => {
+    if (!editingPrompt.includes(DREAM_PLACEHOLDER)) {
+      setPromptError(`Prompt must include the ${DREAM_PLACEHOLDER} placeholder`)
+      return
+    }
+    setPromptTemplate(editingPrompt)
+    setPromptError(null)
+  }
+
+  const resetPromptTemplate = () => {
+    setEditingPrompt(DEFAULT_PROMPT_TEMPLATE)
+    setPromptTemplate(DEFAULT_PROMPT_TEMPLATE)
+    setPromptError(null)
+  }
+
   const startMagicPhrases = () => {
     let index = 0
     phraseIntervalRef.current = window.setInterval(() => {
@@ -206,6 +244,7 @@ function App() {
           image: selectedImage,
           dream: dream.trim(),
           model: selectedModel,
+          promptTemplate: promptTemplate,
         }),
       })
 
@@ -272,6 +311,51 @@ function App() {
                   <span className="model-desc">{model.description}</span>
                 </label>
               ))}
+            </div>
+
+            <h3>Prompt Template</h3>
+            <div className="prompt-editor">
+              <textarea
+                ref={promptInputRef}
+                value={editingPrompt}
+                onChange={(e) => {
+                  setEditingPrompt(e.target.value)
+                  setPromptError(null)
+                }}
+                className="prompt-textarea"
+                rows={3}
+                placeholder="Enter your prompt template..."
+              />
+              <div className="prompt-chips">
+                <button 
+                  className="prompt-chip"
+                  onClick={insertDreamPlaceholder}
+                  title="Click to insert dream placeholder"
+                >
+                  {DREAM_PLACEHOLDER}
+                </button>
+                <span className="prompt-chip-hint">← Click to insert</span>
+              </div>
+              {promptError && (
+                <div className="prompt-error">{promptError}</div>
+              )}
+              <div className="prompt-actions">
+                <button 
+                  className="prompt-save-btn"
+                  onClick={savePromptTemplate}
+                >
+                  Save
+                </button>
+                <button 
+                  className="prompt-reset-btn"
+                  onClick={resetPromptTemplate}
+                >
+                  Reset
+                </button>
+              </div>
+              {promptTemplate !== editingPrompt && (
+                <div className="prompt-unsaved">Unsaved changes</div>
+              )}
             </div>
           </div>
         )}

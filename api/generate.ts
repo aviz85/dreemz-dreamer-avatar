@@ -4,10 +4,14 @@ export const config = {
 
 type ModelType = 'flux-2-edit' | 'nano-banana-pro'
 
+const DREAM_PLACEHOLDER = '{{DREAM}}'
+const DEFAULT_PROMPT_TEMPLATE = `Medium shot of this character ${DREAM_PLACEHOLDER}`
+
 interface RequestBody {
   image: string
   dream: string
   model?: ModelType
+  promptTemplate?: string
 }
 
 interface FalResponse {
@@ -15,8 +19,9 @@ interface FalResponse {
   prompt?: string
 }
 
-function craftPrompt(dream: string): string {
-  return `Medium shot of this character ${dream}`
+function craftPrompt(dream: string, template?: string): string {
+  const promptTemplate = template || DEFAULT_PROMPT_TEMPLATE
+  return promptTemplate.replace(DREAM_PLACEHOLDER, dream)
 }
 
 function getModelEndpoint(model: ModelType): string {
@@ -58,7 +63,7 @@ export default async function handler(request: Request): Promise<Response> {
 
   try {
     const body: RequestBody = await request.json()
-    const { image, dream, model = 'nano-banana-pro' } = body
+    const { image, dream, model = 'nano-banana-pro', promptTemplate } = body
 
     if (!image || !dream) {
       return new Response(
@@ -67,7 +72,7 @@ export default async function handler(request: Request): Promise<Response> {
       )
     }
 
-    const prompt = craftPrompt(dream)
+    const prompt = craftPrompt(dream, promptTemplate)
     const endpoint = getModelEndpoint(model)
 
     // Use synchronous fal.ai endpoint (fal.run instead of queue.fal.run)
