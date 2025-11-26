@@ -10,12 +10,9 @@ interface GeneratedImage {
 }
 
 const MODELS = [
-  { id: 'flux-2-edit' as ModelType, name: 'FLUX 2 Edit', description: 'High quality, slower', costPerMP: 0.025 },
-  { id: 'nano-banana-pro' as ModelType, name: 'Nano Banana Pro', description: 'Fast, good quality', costPerMP: 0.003 },
+  { id: 'flux-2-edit' as ModelType, name: 'FLUX 2 Edit', description: 'High quality, slower', costPerImage: 0.02 },
+  { id: 'nano-banana-pro' as ModelType, name: 'Nano Banana Pro', description: 'Fast, good quality', costPerImage: 0.134 },
 ]
-
-// Portrait 4:3 at typical resolution (1024x768 = 0.786 MP)
-const ESTIMATED_MEGAPIXELS = 0.786
 
 const DREAM_EXAMPLES = [
   "Flying through the clouds",
@@ -411,7 +408,7 @@ function App() {
               <div className="cost-estimation">
                 <span className="cost-label">Estimated cost:</span>
                 <span className="cost-value">
-                  ${(ESTIMATED_MEGAPIXELS * (MODELS.find(m => m.id === selectedModel)?.costPerMP || 0.003)).toFixed(4)}
+                  ${(MODELS.find(m => m.id === selectedModel)?.costPerImage || 0.02).toFixed(3)}
                 </span>
                 <span className="cost-model">({MODELS.find(m => m.id === selectedModel)?.name})</span>
               </div>
