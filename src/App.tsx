@@ -97,12 +97,24 @@ function App() {
     setIsWebcamActive(false)
   }, [])
 
-  const selectExample = (url: string) => {
-    setSelectedImage(url)
+  const selectExample = async (url: string) => {
     setImageSource('example')
     setGeneratedImage(null)
     setError(null)
     stopWebcam()
+    
+    // Convert example image to base64 for fal.ai API
+    try {
+      const response = await fetch(url)
+      const blob = await response.blob()
+      const reader = new FileReader()
+      reader.onload = () => {
+        setSelectedImage(reader.result as string)
+      }
+      reader.readAsDataURL(blob)
+    } catch {
+      setError('Failed to load example image')
+    }
   }
 
   const handleDreamChipClick = (dreamText: string) => {
