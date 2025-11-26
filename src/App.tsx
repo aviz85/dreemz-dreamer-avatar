@@ -20,10 +20,23 @@ const DREAM_EXAMPLES = [
 ]
 
 const EXAMPLE_PORTRAITS = [
-  '/examples/portrait-1.jpg',
-  '/examples/portrait-2.jpg',
-  '/examples/portrait-3.jpg',
-  '/examples/portrait-4.jpg',
+  '/examples/portrait-1.png',  // Aviz
+  '/examples/portrait-3.png',  // Amos
+  '/examples/portrait-4.png',  // Sahar
+  '/examples/yuval.png',       // Yuval
+  '/examples/itay.png',        // Itay
+  '/examples/rita.png',        // Rita
+]
+
+const MAGIC_PHRASES = [
+  "Weaving your dreams into reality...",
+  "Sprinkling stardust on your vision...",
+  "Painting your imagination...",
+  "Manifesting your destiny...",
+  "Creating magic just for you...",
+  "Turning dreams into pixels...",
+  "Channeling creative energy...",
+  "Unlocking infinite possibilities...",
 ]
 
 function App() {
@@ -34,11 +47,13 @@ function App() {
   const [generatedImage, setGeneratedImage] = useState<GeneratedImage | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isWebcamActive, setIsWebcamActive] = useState(false)
+  const [magicPhrase, setMagicPhrase] = useState(MAGIC_PHRASES[0])
   
   const fileInputRef = useRef<HTMLInputElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
+  const phraseIntervalRef = useRef<number | null>(null)
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -121,6 +136,21 @@ function App() {
     setDream(dreamText)
   }
 
+  const startMagicPhrases = () => {
+    let index = 0
+    phraseIntervalRef.current = window.setInterval(() => {
+      index = (index + 1) % MAGIC_PHRASES.length
+      setMagicPhrase(MAGIC_PHRASES[index])
+    }, 3000)
+  }
+
+  const stopMagicPhrases = () => {
+    if (phraseIntervalRef.current) {
+      clearInterval(phraseIntervalRef.current)
+      phraseIntervalRef.current = null
+    }
+  }
+
   const generateDreamImage = async () => {
     if (!selectedImage || !dream.trim()) {
       setError('Please select an image and enter your dream')
@@ -129,6 +159,7 @@ function App() {
 
     setIsGenerating(true)
     setError(null)
+    startMagicPhrases()
 
     try {
       const response = await fetch('/api/generate', {
@@ -154,6 +185,7 @@ function App() {
       setError(err instanceof Error ? err.message : 'Something went wrong')
     } finally {
       setIsGenerating(false)
+      stopMagicPhrases()
     }
   }
 
@@ -175,15 +207,39 @@ function App() {
       </div>
       
       <header className="header">
-        <h1 className="title">
-          <span className="title-icon">✨</span>
-          Dreemizer
-        </h1>
+        <img src="/dreemz-logo.png" alt="Dreemz" className="logo" />
+        <h1 className="title">Dreemizer</h1>
         <p className="subtitle">Transform your portrait into a vision of your dreams</p>
       </header>
 
       <main className="main">
-        {generatedImage ? (
+        {isGenerating ? (
+          <div className="loading-section">
+            <div className="magic-loader">
+              <div className="magic-circle">
+                <div className="magic-ring ring-1"></div>
+                <div className="magic-ring ring-2"></div>
+                <div className="magic-ring ring-3"></div>
+                <div className="magic-core"></div>
+                <div className="magic-particles">
+                  {[...Array(12)].map((_, i) => (
+                    <div key={i} className="particle" style={{ '--i': i } as React.CSSProperties}></div>
+                  ))}
+                </div>
+              </div>
+              <div className="magic-stars">
+                {[...Array(20)].map((_, i) => (
+                  <div key={i} className="star" style={{ '--i': i } as React.CSSProperties}>✦</div>
+                ))}
+              </div>
+            </div>
+            <h2 className="loading-title">Creating Your Dream Vision</h2>
+            <p className="loading-phrase">{magicPhrase}</p>
+            <div className="loading-progress">
+              <div className="progress-bar"></div>
+            </div>
+          </div>
+        ) : generatedImage ? (
           <div className="result-section">
             <div className="result-card">
               <div className="result-header">
@@ -275,7 +331,7 @@ function App() {
               )}
 
               <div className="examples-section">
-                <p className="examples-label">Or choose from examples:</p>
+                <p className="examples-label">Or choose from the Dreemz team:</p>
                 <div className="examples-grid">
                   {EXAMPLE_PORTRAITS.map((url, index) => (
                     <button
@@ -333,24 +389,15 @@ function App() {
               disabled={!selectedImage || !dream.trim() || isGenerating}
               className="generate-btn"
             >
-              {isGenerating ? (
-                <>
-                  <span className="spinner"></span>
-                  Crafting Your Dream...
-                </>
-              ) : (
-                <>
-                  <span className="generate-icon">🌟</span>
-                  Generate Dream Vision
-                </>
-              )}
+              <span className="generate-icon">✨</span>
+              Generate Dream Vision
             </button>
           </div>
         )}
       </main>
 
       <footer className="footer">
-        <p>Powered by AI • Made with ✨ imagination</p>
+        <p>Powered by Dreemz • Made with ✨ imagination</p>
       </footer>
     </div>
   )

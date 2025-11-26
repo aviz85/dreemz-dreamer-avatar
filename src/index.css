@@ -1,19 +1,26 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Outfit:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --bg-primary: #0a0a0f;
-  --bg-secondary: #12121a;
-  --bg-tertiary: #1a1a25;
-  --accent-primary: #f0b429;
-  --accent-secondary: #ff6b6b;
-  --accent-tertiary: #4ecdc4;
+  /* Dreemz Color Palette */
+  --dreemz-pink: #E91E7B;
+  --dreemz-cyan: #5ECECE;
+  --dreemz-yellow: #F5D547;
+  --dreemz-dark: #1A1A2E;
+  --dreemz-darker: #12121F;
+  
+  --bg-primary: var(--dreemz-darker);
+  --bg-secondary: var(--dreemz-dark);
+  --bg-tertiary: #232340;
+  --accent-primary: var(--dreemz-yellow);
+  --accent-secondary: var(--dreemz-pink);
+  --accent-tertiary: var(--dreemz-cyan);
   --text-primary: #ffffff;
-  --text-secondary: #a0a0b0;
-  --text-muted: #6b6b7b;
-  --border-color: #2a2a3a;
-  --gradient-dream: linear-gradient(135deg, #f0b429 0%, #ff6b6b 50%, #4ecdc4 100%);
-  --gradient-bg: radial-gradient(ellipse at top, #1a1a25 0%, #0a0a0f 50%, #0a0a0f 100%);
-  --shadow-glow: 0 0 40px rgba(240, 180, 41, 0.15);
+  --text-secondary: #b0b0c0;
+  --text-muted: #6b6b8b;
+  --border-color: #3a3a5a;
+  --gradient-dream: linear-gradient(135deg, var(--dreemz-pink) 0%, var(--dreemz-yellow) 50%, var(--dreemz-cyan) 100%);
+  --gradient-bg: radial-gradient(ellipse at top, var(--dreemz-dark) 0%, var(--dreemz-darker) 50%, var(--dreemz-darker) 100%);
+  --shadow-glow: 0 0 40px rgba(94, 206, 206, 0.2);
 }
 
 * {
@@ -27,7 +34,7 @@ html {
 }
 
 body {
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Poppins', sans-serif;
   background: var(--bg-primary);
   background-image: var(--gradient-bg);
   color: var(--text-primary);
@@ -44,24 +51,24 @@ body {
 }
 
 h1, h2, h3, h4 {
-  font-family: 'Playfair Display', serif;
-  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
 }
 
 button {
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Poppins', sans-serif;
   cursor: pointer;
   border: none;
   outline: none;
 }
 
 input, textarea {
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Poppins', sans-serif;
   outline: none;
 }
 
 ::selection {
-  background: var(--accent-primary);
+  background: var(--dreemz-cyan);
   color: var(--bg-primary);
 }
 
@@ -122,9 +129,9 @@ input, textarea {
 
 @keyframes glow {
   0%, 100% {
-    box-shadow: 0 0 20px rgba(240, 180, 41, 0.3);
+    box-shadow: 0 0 20px rgba(94, 206, 206, 0.3);
   }
   50% {
-    box-shadow: 0 0 40px rgba(240, 180, 41, 0.5);
+    box-shadow: 0 0 40px rgba(94, 206, 206, 0.5);
   }
 }
