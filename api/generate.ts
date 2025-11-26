@@ -22,15 +22,15 @@ interface FalResultResponse {
 }
 
 function craftPrompt(dream: string): string {
-  return `Cinematic portrait of this EXACT SAME PERSON ${dream}.
-CRITICAL: The person in the output MUST be the SAME INDIVIDUAL as in the input image - same face structure, same nose, same eyes, same skin tone, same hair color and style. This is an identity-preserving edit.
-Show the person from chest/shoulders up, naturally integrated into the dream scene.
-The face should be clearly recognizable and well-lit, taking about 25-30% of the frame.
-Create a balanced composition where both the person AND the "${dream}" environment are equally important.
-The person should appear to be genuinely IN the scene, not just pasted on top.
-The expression can be different (showing wonder, joy, achievement) but the IDENTITY must remain 100% consistent - it must be unmistakably the same human being.
-Preserve: exact facial bone structure, eye shape and color, nose shape, lip shape, skin complexion, hair texture and color, any distinctive features like moles or freckles.
-Dramatic cinematic lighting, photorealistic, epic movie poster quality. 8k, sharp details.`
+  return `Realistic photograph of this EXACT SAME PERSON actually ${dream}.
+CRITICAL IDENTITY: Must be the SAME INDIVIDUAL - preserve exact face structure, nose, eyes, skin tone, hair. Identity-preserving edit.
+SHOT TYPE: Medium close-up shot (from waist or chest up). NOT a floating head, NOT a portrait overlay. The person has a FULL BODY naturally positioned in the real scene.
+REALISM: This must look like a real candid photograph taken in the moment - the person is physically THERE, doing the activity, interacting with the environment.
+The person should be wearing appropriate clothing/gear for the activity "${dream}".
+Natural pose and body language as if actually performing the activity.
+Environment should wrap around the person naturally with correct perspective, lighting, and scale.
+Expression showing genuine emotion (joy, wonder, excitement) but SAME PERSON's face.
+Photorealistic, natural lighting matching the scene, sharp focus, 8k quality. Like a National Geographic or sports photography shot.`
 }
 
 async function sleep(ms: number): Promise<void> {
