@@ -483,7 +483,7 @@
 .generate-btn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: var(--shadow-glow);
-}
+  }
 
 .generate-btn:disabled {
   opacity: 0.5;
@@ -747,7 +747,7 @@
   border-radius: 24px;
   padding: 2rem;
   text-align: center;
-}
+  }
 
 .result-header {
   margin-bottom: 2rem;

@@ -105,7 +105,7 @@ export default async function handler(request: Request): Promise<Response> {
     const queueData: FalQueueResponse = await submitResponse.json()
     const requestId = queueData.request_id
 
-    // Poll for completion
+    // Poll for completion using fal.ai queue API
     let attempts = 0
     const maxAttempts = 120 // 2 minutes max
     
@@ -113,14 +113,15 @@ export default async function handler(request: Request): Promise<Response> {
       await sleep(1000)
       
       const statusResponse = await fetch(
-        `https://queue.fal.run/fal-ai/flux-2/edit/requests/${requestId}/status`,
+        `https://queue.fal.run/requests/${requestId}/status`,
         {
           headers: { 'Authorization': `Key ${falKey}` },
         }
       )
 
       if (!statusResponse.ok) {
-        throw new Error('Failed to check status')
+        const statusError = await statusResponse.text()
+        throw new Error(`Failed to check status: ${statusError}`)
       }
 
       const statusData: FalStatusResponse = await statusResponse.json()
@@ -128,7 +129,7 @@ export default async function handler(request: Request): Promise<Response> {
       if (statusData.status === 'COMPLETED') {
         // Get the result
         const resultResponse = await fetch(
-          `https://queue.fal.run/fal-ai/flux-2/edit/requests/${requestId}`,
+          `https://queue.fal.run/requests/${requestId}`,
           {
             headers: { 'Authorization': `Key ${falKey}` },
           }

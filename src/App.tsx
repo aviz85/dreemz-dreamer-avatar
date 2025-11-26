@@ -423,7 +423,7 @@ function App() {
             >
               <span className="generate-icon">✨</span>
               Generate Dream Vision
-            </button>
+        </button>
           </div>
         )}
       </main>
@@ -431,7 +431,7 @@ function App() {
       <footer className="footer">
         <p>Powered by Dreemz • Made with ✨ imagination</p>
       </footer>
-    </div>
+      </div>
   )
 }
 
