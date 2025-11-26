@@ -13,7 +13,7 @@ interface FalResponse {
 }
 
 function craftPrompt(dream: string): string {
-  return `Make this character ${dream}`
+  return `Medium shot of this character ${dream}`
 }
 
 export default async function handler(request: Request): Promise<Response> {

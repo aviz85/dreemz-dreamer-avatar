@@ -7,7 +7,7 @@ config({ path: '.env.local' })
 const PORT = 3001
 
 function craftPrompt(dream) {
-  return `Make this character ${dream}`
+  return `Medium shot of this character ${dream}`
 }
 
 const server = createServer(async (req, res) => {
