@@ -46,11 +46,11 @@ async function enhancePromptWithLLM(dream: string): Promise<string> {
         messages: [
           {
             role: 'system',
-            content: 'You are a creative prompt engineer specializing in image generation. Create vivid, detailed prompts that describe inspirational images.',
+            content: 'You are a creative prompt engineer specializing in image generation. Focus on peak moments of success and joy. Create vivid, detailed prompts that capture the essence of achievement and positive energy, while maintaining a medium shot composition.',
           },
           {
             role: 'user',
-            content: `Describe an inspirational image of the future reality of a character fulfilling their dream: "${dream}". Use a medium shot composition. Be specific about the scene, atmosphere, lighting, emotions, and visual details. Make it vivid and cinematic.`,
+            content: `Describe a peak moment of success in this dream: "${dream}". Focus on a specific situation that symbolizes success the most - a moment that delivers success and joy, with good vibes and energy. Describe vibrant details about the character's expression, emotions, and immediate surroundings, but keep it focused on a medium shot composition. Don't describe the entire environment in detail as that would create a long shot. Focus on the character and their immediate success moment.`,
           },
         ],
         temperature: 0.8,
