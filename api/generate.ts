@@ -2,7 +2,7 @@ export const config = {
   runtime: 'edge',
 }
 
-type ModelType = 'flux-2-edit' | 'nano-banana-pro'
+type ModelType = 'flux-2-edit' | 'nano-banana-pro' | 'seedream-v4-edit'
 
 const DREAM_PLACEHOLDER = '{{DREAM}}'
 const DEFAULT_PROMPT_TEMPLATE = `Medium shot of this character ${DREAM_PLACEHOLDER}`
@@ -28,9 +28,42 @@ function getModelEndpoint(model: ModelType): string {
   switch (model) {
     case 'nano-banana-pro':
       return 'https://fal.run/fal-ai/nano-banana-pro/edit'
+    case 'seedream-v4-edit':
+      return 'https://fal.run/fal-ai/bytedance/seedream/v4/edit'
     case 'flux-2-edit':
     default:
       return 'https://fal.run/fal-ai/flux-2/edit'
+  }
+}
+
+function getModelParams(model: ModelType, prompt: string, image: string) {
+  const baseParams = {
+    prompt,
+    image_urls: [image],
+  }
+
+  switch (model) {
+    case 'seedream-v4-edit':
+      return {
+        ...baseParams,
+        image_size: 'portrait_4_3',
+        num_images: 1,
+        enable_safety_checker: true,
+        enhance_prompt_mode: 'standard' as const,
+      }
+    case 'nano-banana-pro':
+    case 'flux-2-edit':
+    default:
+      return {
+        ...baseParams,
+        guidance_scale: 2.5,
+        num_inference_steps: 28,
+        image_size: 'portrait_4_3',
+        num_images: 1,
+        acceleration: 'regular',
+        enable_safety_checker: true,
+        output_format: 'png',
+      }
   }
 }
 
@@ -63,7 +96,7 @@ export default async function handler(request: Request): Promise<Response> {
 
   try {
     const body: RequestBody = await request.json()
-    const { image, dream, model = 'nano-banana-pro', promptTemplate } = body
+    const { image, dream, model = 'seedream-v4-edit', promptTemplate } = body
 
     if (!image || !dream) {
       return new Response(
@@ -74,6 +107,7 @@ export default async function handler(request: Request): Promise<Response> {
 
     const prompt = craftPrompt(dream, promptTemplate)
     const endpoint = getModelEndpoint(model)
+    const modelParams = getModelParams(model, prompt, image)
 
     // Use synchronous fal.ai endpoint (fal.run instead of queue.fal.run)
     const response = await fetch(endpoint, {
@@ -82,17 +116,7 @@ export default async function handler(request: Request): Promise<Response> {
         'Authorization': `Key ${falKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        prompt,
-        image_urls: [image],
-        guidance_scale: 2.5,
-        num_inference_steps: 28,
-        image_size: 'portrait_4_3',
-        num_images: 1,
-        acceleration: 'regular',
-        enable_safety_checker: true,
-        output_format: 'png',
-      }),
+      body: JSON.stringify(modelParams),
     })
 
     if (!response.ok) {

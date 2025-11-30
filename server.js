@@ -18,6 +18,8 @@ function getModelId(model) {
   switch (model) {
     case 'nano-banana-pro':
       return 'fal-ai/nano-banana-pro/edit'
+    case 'seedream-v4-edit':
+      return 'fal-ai/bytedance/seedream/v4/edit'
     case 'flux-2-edit':
     default:
       return 'fal-ai/flux-2/edit'
@@ -45,7 +47,7 @@ const server = createServer(async (req, res) => {
 
     req.on('end', async () => {
       try {
-        const { image, dream, model = 'nano-banana-pro', promptTemplate } = JSON.parse(body)
+        const { image, dream, model = 'seedream-v4-edit', promptTemplate } = JSON.parse(body)
 
         if (!image || !dream) {
           res.writeHead(400, { 'Content-Type': 'application/json' })
@@ -67,8 +69,19 @@ const server = createServer(async (req, res) => {
         console.log(`Generating image with model: ${modelId}`)
         console.log('Prompt:', prompt.substring(0, 100) + '...')
 
-        const result = await fal.subscribe(modelId, {
-          input: {
+        // Get model-specific parameters
+        let inputParams
+        if (model === 'seedream-v4-edit') {
+          inputParams = {
+            prompt,
+            image_urls: [image],
+            image_size: 'portrait_4_3',
+            num_images: 1,
+            enable_safety_checker: true,
+            enhance_prompt_mode: 'standard',
+          }
+        } else {
+          inputParams = {
             prompt,
             image_urls: [image],
             guidance_scale: 2.5,
@@ -78,7 +91,11 @@ const server = createServer(async (req, res) => {
             acceleration: 'regular',
             enable_safety_checker: true,
             output_format: 'png',
-          },
+          }
+        }
+
+        const result = await fal.subscribe(modelId, {
+          input: inputParams,
           logs: true,
           onQueueUpdate: (update) => {
             if (update.status === 'IN_PROGRESS') {

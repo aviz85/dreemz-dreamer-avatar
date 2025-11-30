@@ -2,7 +2,7 @@ import { useState, useRef, useCallback } from 'react'
 import './App.css'
 
 type ImageSource = 'upload' | 'webcam' | 'example' | null
-type ModelType = 'flux-2-edit' | 'nano-banana-pro'
+type ModelType = 'flux-2-edit' | 'nano-banana-pro' | 'seedream-v4-edit'
 
 interface GeneratedImage {
   url: string
@@ -12,7 +12,9 @@ interface GeneratedImage {
 // Actual pricing from usage:
 // FLUX 2 Edit: ~$0.024 per image
 // Nano Banana Pro: ~$0.15 per image
+// SeedDream v4 Edit: ~$0.03 per image
 const MODELS = [
+  { id: 'seedream-v4-edit' as ModelType, name: 'SeedDream v4 Edit', description: 'Bytedance image editing', costPerImage: 0.03 },
   { id: 'flux-2-edit' as ModelType, name: 'FLUX 2 Edit', description: 'High quality, slower', costPerImage: 0.024 },
   { id: 'nano-banana-pro' as ModelType, name: 'Nano Banana Pro', description: 'Fast, good quality', costPerImage: 0.15 },
 ]
@@ -60,7 +62,7 @@ function App() {
   const [error, setError] = useState<string | null>(null)
   const [isWebcamActive, setIsWebcamActive] = useState(false)
   const [magicPhrase, setMagicPhrase] = useState(MAGIC_PHRASES[0])
-  const [selectedModel, setSelectedModel] = useState<ModelType>('nano-banana-pro')
+  const [selectedModel, setSelectedModel] = useState<ModelType>('seedream-v4-edit')
   const [showSettings, setShowSettings] = useState(false)
   const [promptTemplate, setPromptTemplate] = useState(DEFAULT_PROMPT_TEMPLATE)
   const [editingPrompt, setEditingPrompt] = useState(DEFAULT_PROMPT_TEMPLATE)
