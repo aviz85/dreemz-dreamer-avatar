@@ -36,15 +36,15 @@ async function enhancePromptWithLLM(dream) {
         messages: [
           {
             role: 'system',
-            content: 'You are a creative prompt engineer specializing in image generation. Focus on peak moments of success and joy. Create vivid, detailed prompts that capture the essence of achievement and positive energy, while maintaining a medium shot composition.',
+            content: 'You are a prompt engineer. Create short, sharp, and concise descriptions of peak success moments. Focus on the character and their immediate situation, not the environment.',
           },
           {
             role: 'user',
-            content: `Describe a peak moment of success in this dream: "${dream}". Focus on a specific situation that symbolizes success the most - a moment that delivers success and joy, with good vibes and energy. Describe vibrant details about the character's expression, emotions, and immediate surroundings, but keep it focused on a medium shot composition. Don't describe the entire environment in detail as that would create a long shot. Focus on the character and their immediate success moment.`,
+            content: `Describe a peak moment of success for this dream: "${dream}". Be short, sharp, and concise. Focus on the character's expression, emotions, and the specific success moment. Keep it medium shot - describe the character, not the environment. Maximum 2-3 sentences.`,
           },
         ],
-        temperature: 0.8,
-        max_tokens: 200,
+        temperature: 0.7,
+        max_tokens: 120,
       }),
     })
 
