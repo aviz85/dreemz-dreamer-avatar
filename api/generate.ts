@@ -24,6 +24,63 @@ function craftPrompt(dream: string, template?: string): string {
   return promptTemplate.replace(DREAM_PLACEHOLDER, dream)
 }
 
+async function enhancePromptWithLLM(dream: string): Promise<string> {
+  const openRouterKey = process.env.OPENROUTER_API_KEY
+
+  if (!openRouterKey) {
+    // Fallback to basic prompt if API key not configured
+    return `Medium shot of this character ${dream}`
+  }
+
+  try {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openRouterKey}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://dreemz.ai',
+        'X-Title': 'Dreemizer',
+      },
+      body: JSON.stringify({
+        model: 'openai/gpt-4o', // Using gpt-4o (can be changed to gpt-4.1 if available)
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a creative prompt engineer specializing in image generation. Create vivid, detailed prompts that describe inspirational images.',
+          },
+          {
+            role: 'user',
+            content: `Describe an inspirational image of the future reality of a character fulfilling their dream: "${dream}". Use a medium shot composition. Be specific about the scene, atmosphere, lighting, emotions, and visual details. Make it vivid and cinematic.`,
+          },
+        ],
+        temperature: 0.8,
+        max_tokens: 200,
+      }),
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('OpenRouter API error:', errorText)
+      // Fallback to basic prompt
+      return `Medium shot of this character ${dream}`
+    }
+
+    const data = await response.json()
+    const enhancedPrompt = data.choices?.[0]?.message?.content?.trim()
+
+    if (!enhancedPrompt) {
+      // Fallback to basic prompt
+      return `Medium shot of this character ${dream}`
+    }
+
+    return enhancedPrompt
+  } catch (error) {
+    console.error('Error enhancing prompt with LLM:', error)
+    // Fallback to basic prompt
+    return `Medium shot of this character ${dream}`
+  }
+}
+
 function getModelEndpoint(model: ModelType): string {
   switch (model) {
     case 'nano-banana-pro':
@@ -105,7 +162,14 @@ export default async function handler(request: Request): Promise<Response> {
       )
     }
 
-    const prompt = craftPrompt(dream, promptTemplate)
+    // Enhance prompt with LLM for SeedDream v4 edit model
+    let prompt: string
+    if (model === 'seedream-v4-edit') {
+      prompt = await enhancePromptWithLLM(dream)
+    } else {
+      prompt = craftPrompt(dream, promptTemplate)
+    }
+
     const endpoint = getModelEndpoint(model)
     const modelParams = getModelParams(model, prompt, image)
 

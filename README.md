@@ -18,15 +18,19 @@ Transform your portrait into a vision of your dreams using AI.
 npm install
 ```
 
-### 2. Configure API Key
+### 2. Configure API Keys
 
 Create a `.env.local` file in the root directory:
 
 ```
 FAL_KEY=your_fal_api_key_here
+OPENROUTER_API_KEY=your_openrouter_api_key_here
 ```
 
-Get your API key from [fal.ai dashboard](https://fal.ai/dashboard/keys).
+- Get your FAL API key from [fal.ai dashboard](https://fal.ai/dashboard/keys)
+- Get your OpenRouter API key from [OpenRouter dashboard](https://openrouter.ai/keys)
+
+**Note:** The `OPENROUTER_API_KEY` is used to enhance prompts for the SeedDream v4 edit model. If not provided, it will fall back to a basic prompt.
 
 ### 3. Run locally
 
@@ -40,7 +44,9 @@ This starts both the Vite dev server and the API server.
 
 1. Push to GitHub
 2. Import project in Vercel
-3. Add `FAL_KEY` environment variable in Vercel project settings
+3. Add environment variables in Vercel project settings:
+   - `FAL_KEY` - Your fal.ai API key
+   - `OPENROUTER_API_KEY` - Your OpenRouter API key (optional, for SeedDream prompt enhancement)
 4. Deploy
 
 ## Tech Stack
