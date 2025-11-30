@@ -165,13 +165,16 @@ export default async function handler(request: Request): Promise<Response> {
     // Enhance prompt with LLM for SeedDream v4 edit model
     let prompt: string
     if (model === 'seedream-v4-edit') {
+      console.log('🎨 Enhancing prompt with LLM for SeedDream v4 edit...')
       prompt = await enhancePromptWithLLM(dream)
+      console.log('✨ Enhanced prompt:', prompt.substring(0, 150) + '...')
     } else {
       prompt = craftPrompt(dream, promptTemplate)
     }
 
     const endpoint = getModelEndpoint(model)
     const modelParams = getModelParams(model, prompt, image)
+    console.log('📤 Sending to fal.ai with prompt:', modelParams.prompt?.substring(0, 150) + '...')
 
     // Use synchronous fal.ai endpoint (fal.run instead of queue.fal.run)
     const response = await fetch(endpoint, {

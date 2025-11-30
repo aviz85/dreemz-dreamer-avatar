@@ -124,14 +124,16 @@ const server = createServer(async (req, res) => {
         // Enhance prompt with LLM for SeedDream v4 edit model
         let prompt
         if (model === 'seedream-v4-edit') {
+          console.log('🎨 Enhancing prompt with LLM for SeedDream v4 edit...')
           prompt = await enhancePromptWithLLM(dream)
+          console.log('✨ Enhanced prompt:', prompt.substring(0, 150) + '...')
         } else {
           prompt = craftPrompt(dream, promptTemplate)
         }
 
         const modelId = getModelId(model)
         console.log(`Generating image with model: ${modelId}`)
-        console.log('Prompt:', prompt.substring(0, 200) + '...')
+        console.log('📤 Sending to fal.ai with prompt:', prompt.substring(0, 200) + '...')
 
         // Get model-specific parameters
         let inputParams
