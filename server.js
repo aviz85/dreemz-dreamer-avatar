@@ -76,7 +76,7 @@ function getModelId(model) {
     case 'nano-banana-pro':
       return 'fal-ai/nano-banana-pro/edit'
     case 'seedream-v4-edit':
-      return 'fal-ai/bytedance/seedream/v4/edit'
+      return 'fal-ai/bytedance/seedream/v4.5/edit'
     case 'flux-2-edit':
     default:
       return 'fal-ai/flux-2/edit'
@@ -121,10 +121,10 @@ const server = createServer(async (req, res) => {
 
         fal.config({ credentials: falKey })
 
-        // Enhance prompt with LLM for SeedDream v4 edit model
+        // Enhance prompt with LLM for SeedDream v4.5 edit model
         let prompt
         if (model === 'seedream-v4-edit') {
-          console.log('🎨 Enhancing prompt with LLM for SeedDream v4 edit...')
+          console.log('🎨 Enhancing prompt with LLM for SeedDream v4.5 edit...')
           prompt = await enhancePromptWithLLM(dream)
           console.log('✨ Enhanced prompt:', prompt.substring(0, 150) + '...')
         } else {
@@ -144,7 +144,6 @@ const server = createServer(async (req, res) => {
             image_size: 'portrait_4_3',
             num_images: 1,
             enable_safety_checker: true,
-            enhance_prompt_mode: 'standard',
           }
         } else {
           inputParams = {

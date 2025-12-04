@@ -2,7 +2,7 @@ export const config = {
   runtime: 'edge',
 }
 
-type ModelType = 'flux-2-edit' | 'nano-banana-pro' | 'seedream-v4-edit'
+type ModelType = 'flux-2-edit' | 'nano-banana-pro' | 'seedream-v4-edit'           
 
 const DREAM_PLACEHOLDER = '{{DREAM}}'
 const DEFAULT_PROMPT_TEMPLATE = `Medium shot of this character ${DREAM_PLACEHOLDER}`
@@ -86,7 +86,7 @@ function getModelEndpoint(model: ModelType): string {
     case 'nano-banana-pro':
       return 'https://fal.run/fal-ai/nano-banana-pro/edit'
     case 'seedream-v4-edit':
-      return 'https://fal.run/fal-ai/bytedance/seedream/v4/edit'
+      return 'https://fal.run/fal-ai/bytedance/seedream/v4.5/edit'
     case 'flux-2-edit':
     default:
       return 'https://fal.run/fal-ai/flux-2/edit'
@@ -106,7 +106,6 @@ function getModelParams(model: ModelType, prompt: string, image: string) {
         image_size: 'portrait_4_3',
         num_images: 1,
         enable_safety_checker: true,
-        enhance_prompt_mode: 'standard' as const,
       }
     case 'nano-banana-pro':
     case 'flux-2-edit':
@@ -162,10 +161,10 @@ export default async function handler(request: Request): Promise<Response> {
       )
     }
 
-    // Enhance prompt with LLM for SeedDream v4 edit model
+    // Enhance prompt with LLM for SeedDream v4.5 edit model
     let prompt: string
     if (model === 'seedream-v4-edit') {
-      console.log('🎨 Enhancing prompt with LLM for SeedDream v4 edit...')
+      console.log('🎨 Enhancing prompt with LLM for SeedDream v4.5 edit...')
       prompt = await enhancePromptWithLLM(dream)
       console.log('✨ Enhanced prompt:', prompt.substring(0, 150) + '...')
     } else {
