@@ -1,5 +1,8 @@
+import { fal } from '@fal-ai/client'
+
 export const config = {
-  runtime: 'edge',
+  runtime: 'nodejs',
+  maxDuration: 60, // Allow up to 60 seconds for long-running operations
 }
 
 type ModelType = 'flux-2-edit' | 'nano-banana-pro' | 'seedream-v4-edit'           
@@ -81,15 +84,15 @@ async function enhancePromptWithLLM(dream: string): Promise<string> {
   }
 }
 
-function getModelEndpoint(model: ModelType): string {
+function getModelId(model: ModelType): string {
   switch (model) {
     case 'nano-banana-pro':
-      return 'https://fal.run/fal-ai/nano-banana-pro/edit'
+      return 'fal-ai/nano-banana-pro/edit'
     case 'seedream-v4-edit':
-      return 'https://fal.run/fal-ai/bytedance/seedream/v4.5/edit'
+      return 'fal-ai/bytedance/seedream/v4.5/edit'
     case 'flux-2-edit':
     default:
-      return 'https://fal.run/fal-ai/flux-2/edit'
+      return 'fal-ai/flux-2/edit'
   }
 }
 
@@ -171,33 +174,29 @@ export default async function handler(request: Request): Promise<Response> {
       prompt = craftPrompt(dream, promptTemplate)
     }
 
-    const endpoint = getModelEndpoint(model)
+    const modelId = getModelId(model)
     const modelParams = getModelParams(model, prompt, image)
     console.log('📤 Sending to fal.ai with prompt:', modelParams.prompt?.substring(0, 150) + '...')
 
-    // Use synchronous fal.ai endpoint (fal.run instead of queue.fal.run)
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Key ${falKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(modelParams),
+    // Configure fal client with API key
+    fal.config({
+      credentials: falKey,
     })
 
-    if (!response.ok) {
-      const errorText = await response.text()
-      throw new Error(`Fal.ai error: ${errorText}`)
-    }
+    // Use Queue API for long-running operations - submit request and return immediately
+    const { request_id } = await fal.queue.submit(modelId, {
+      input: modelParams,
+    })
 
-    const result: FalResponse = await response.json()
-    const imageUrl = result.images?.[0]?.url
+    console.log('✅ Request submitted with ID:', request_id)
 
-    if (!imageUrl) {
-      throw new Error('No image in response')
-    }
-
-    return new Response(JSON.stringify({ imageUrl, prompt, model }), {
+    // Return request_id immediately - client will poll for status
+    return new Response(JSON.stringify({ 
+      requestId: request_id, 
+      model,
+      prompt,
+      status: 'queued'
+    }), {
       status: 200,
       headers: { 'Content-Type': 'application/json', ...corsHeaders },
     })

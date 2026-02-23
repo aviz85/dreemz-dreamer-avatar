@@ -239,6 +239,7 @@ function App() {
     startMagicPhrases()
 
     try {
+      // Submit generation request
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -256,10 +257,55 @@ function App() {
       }
 
       const data = await response.json()
+      
+      // If we got requestId, poll for status
+      if (data.requestId) {
+        const requestId = data.requestId
+        const maxAttempts = 60 // 5 minutes max (5 second intervals)
+        let attempts = 0
+
+        while (attempts < maxAttempts) {
+          await new Promise(resolve => setTimeout(resolve, 5000)) // Wait 5 seconds
+
+          const statusResponse = await fetch('/api/status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              requestId,
+              model: selectedModel,
+            }),
+          })
+
+          if (!statusResponse.ok) {
+            const errorData = await statusResponse.json().catch(() => ({}))
+            throw new Error(errorData.error || 'Failed to check status')
+          }
+
+          const statusData = await statusResponse.json()
+
+          if (statusData.status === 'completed') {
+            setGeneratedImage({
+              url: statusData.imageUrl,
+              dream: dream.trim(),
+            })
+            return
+          }
+
+          if (statusData.status === 'failed' || statusData.status === 'error') {
+            throw new Error('Image generation failed')
+          }
+
+          attempts++
+        }
+
+        throw new Error('Generation timed out')
+      } else {
+        // Fallback for synchronous responses (if any)
       setGeneratedImage({
         url: data.imageUrl,
         dream: dream.trim(),
       })
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
     } finally {

@@ -33,3 +33,9 @@ dist-ssr
 
 # Vercel
 .vercel
+
+# Claude Code - ignore sensitive, allow skills
+.claude/projects/
+.claude/settings.local.json
+.claude/skills/*/scripts/.env
+.claude/skills/*/scripts/.env.*
