@@ -141,7 +141,6 @@ const server = createServer(async (req, res) => {
           inputParams = {
             prompt,
             image_urls: [image],
-            image_size: 'portrait_4_3',
             num_images: 1,
             enable_safety_checker: true,
           }

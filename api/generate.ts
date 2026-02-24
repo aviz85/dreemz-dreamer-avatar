@@ -106,7 +106,6 @@ function getModelParams(model: ModelType, prompt: string, image: string) {
     case 'seedream-v45-edit':
       return {
         ...baseParams,
-        image_size: 'portrait_4_3',
         num_images: 1,
         enable_safety_checker: true,
       }
