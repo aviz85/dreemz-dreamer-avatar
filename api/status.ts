@@ -1,13 +1,25 @@
-import { fal } from '@fal-ai/client'
-
 export const config = {
   runtime: 'nodejs',
   maxDuration: 30,
 }
 
+const FAL_BASE = 'https://queue.fal.run'
+
 interface StatusRequestBody {
   requestId: string
   model: string
+}
+
+function getModelId(model: string): string {
+  switch (model) {
+    case 'nano-banana-pro':
+      return 'fal-ai/nano-banana-pro/edit'
+    case 'seedream-v45-edit':
+      return 'fal-ai/bytedance/seedream/v4.5/edit'
+    case 'flux-2-edit':
+    default:
+      return 'fal-ai/flux-2/edit'
+  }
 }
 
 export default async function handler(request: Request): Promise<Response> {
@@ -48,31 +60,45 @@ export default async function handler(request: Request): Promise<Response> {
       )
     }
 
-    // Configure fal client with API key
-    fal.config({
-      credentials: falKey,
-    })
+    const modelId = getModelId(model)
 
-    // Get model ID
-    const modelId = model === 'seedream-v45-edit' 
-      ? 'fal-ai/bytedance/seedream/v4.5/edit'
-      : model === 'nano-banana-pro'
-      ? 'fal-ai/nano-banana-pro/edit'
-      : 'fal-ai/flux-2/edit'
+    // Check status via fal.ai REST API
+    const statusResponse = await fetch(
+      `${FAL_BASE}/${modelId}/requests/${requestId}/status`,
+      {
+        method: 'GET',
+        headers: {
+          'Authorization': `Key ${falKey}`,
+        },
+      }
+    )
 
-    // Check status
-    const status = await fal.queue.status(modelId, {
-      requestId,
-      logs: true,
-    })
+    if (!statusResponse.ok) {
+      const errText = await statusResponse.text()
+      console.error('fal.ai status error:', statusResponse.status, errText)
+      throw new Error(`Status check failed: ${statusResponse.status}`)
+    }
 
-    // If completed, get the result
-    if (status.status === 'COMPLETED') {
-      const result = await fal.queue.result(modelId, {
-        requestId,
-      })
+    const statusData = await statusResponse.json()
 
-      const imageUrl = result.data?.images?.[0]?.url
+    if (statusData.status === 'COMPLETED') {
+      // Fetch the result
+      const resultResponse = await fetch(
+        `${FAL_BASE}/${modelId}/requests/${requestId}`,
+        {
+          method: 'GET',
+          headers: {
+            'Authorization': `Key ${falKey}`,
+          },
+        }
+      )
+
+      if (!resultResponse.ok) {
+        throw new Error('Failed to fetch result')
+      }
+
+      const resultData = await resultResponse.json()
+      const imageUrl = resultData.images?.[0]?.url
 
       if (!imageUrl) {
         return new Response(
@@ -93,7 +119,7 @@ export default async function handler(request: Request): Promise<Response> {
 
     // Return current status
     return new Response(JSON.stringify({
-      status: status.status.toLowerCase(),
+      status: statusData.status.toLowerCase(),
       requestId,
     }), {
       status: 200,
@@ -109,5 +135,3 @@ export default async function handler(request: Request): Promise<Response> {
     )
   }
 }
-
-

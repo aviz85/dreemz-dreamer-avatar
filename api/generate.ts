@@ -1,25 +1,20 @@
-import { fal } from '@fal-ai/client'
-
 export const config = {
   runtime: 'nodejs',
-  maxDuration: 60, // Allow up to 60 seconds for long-running operations
+  maxDuration: 60,
 }
 
-type ModelType = 'flux-2-edit' | 'nano-banana-pro' | 'seedream-v45-edit'           
+type ModelType = 'flux-2-edit' | 'nano-banana-pro' | 'seedream-v45-edit'
 
 const DREAM_PLACEHOLDER = '{{DREAM}}'
 const DEFAULT_PROMPT_TEMPLATE = `Medium shot of this character ${DREAM_PLACEHOLDER}`
+
+const FAL_BASE = 'https://queue.fal.run'
 
 interface RequestBody {
   image: string
   dream: string
   model?: ModelType
   promptTemplate?: string
-}
-
-interface FalResponse {
-  images?: Array<{ url: string }>
-  prompt?: string
 }
 
 function craftPrompt(dream: string, template?: string): string {
@@ -31,7 +26,6 @@ async function enhancePromptWithLLM(dream: string): Promise<string> {
   const openRouterKey = process.env.OPENROUTER_API_KEY
 
   if (!openRouterKey) {
-    // Fallback to basic prompt if API key not configured
     return `Medium shot of this character ${dream}`
   }
 
@@ -45,7 +39,7 @@ async function enhancePromptWithLLM(dream: string): Promise<string> {
         'X-Title': 'Dreemizer',
       },
       body: JSON.stringify({
-        model: 'openai/gpt-4o', // Using gpt-4o (can be changed to gpt-4.1 if available)
+        model: 'openai/gpt-4o',
         messages: [
           {
             role: 'system',
@@ -62,24 +56,14 @@ async function enhancePromptWithLLM(dream: string): Promise<string> {
     })
 
     if (!response.ok) {
-      const errorText = await response.text()
-      console.error('OpenRouter API error:', errorText)
-      // Fallback to basic prompt
+      console.error('OpenRouter API error:', await response.text())
       return `Medium shot of this character ${dream}`
     }
 
     const data = await response.json()
-    const enhancedPrompt = data.choices?.[0]?.message?.content?.trim()
-
-    if (!enhancedPrompt) {
-      // Fallback to basic prompt
-      return `Medium shot of this character ${dream}`
-    }
-
-    return enhancedPrompt
+    return data.choices?.[0]?.message?.content?.trim() || `Medium shot of this character ${dream}`
   } catch (error) {
     console.error('Error enhancing prompt with LLM:', error)
-    // Fallback to basic prompt
     return `Medium shot of this character ${dream}`
   }
 }
@@ -163,35 +147,41 @@ export default async function handler(request: Request): Promise<Response> {
       )
     }
 
-    // Enhance prompt with LLM for SeedDream v4.5 edit model
     let prompt: string
     if (model === 'seedream-v45-edit') {
-      console.log('🎨 Enhancing prompt with LLM for SeedDream v4.5 edit...')
+      console.log('Enhancing prompt with LLM for SeedDream v4.5...')
       prompt = await enhancePromptWithLLM(dream)
-      console.log('✨ Enhanced prompt:', prompt.substring(0, 150) + '...')
+      console.log('Enhanced prompt:', prompt.substring(0, 150))
     } else {
       prompt = craftPrompt(dream, promptTemplate)
     }
 
     const modelId = getModelId(model)
     const modelParams = getModelParams(model, prompt, image)
-    console.log('📤 Sending to fal.ai with prompt:', modelParams.prompt?.substring(0, 150) + '...')
 
-    // Configure fal client with API key
-    fal.config({
-      credentials: falKey,
+    // Use fal.ai REST Queue API directly (no client library)
+    const falResponse = await fetch(`${FAL_BASE}/${modelId}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Key ${falKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(modelParams),
     })
 
-    // Use Queue API for long-running operations - submit request and return immediately
-    const { request_id } = await fal.queue.submit(modelId, {
-      input: modelParams,
-    })
+    if (!falResponse.ok) {
+      const errText = await falResponse.text()
+      console.error('fal.ai queue submit error:', falResponse.status, errText)
+      throw new Error(`fal.ai error: ${falResponse.status}`)
+    }
 
-    console.log('✅ Request submitted with ID:', request_id)
+    const falData = await falResponse.json()
+    const requestId = falData.request_id
 
-    // Return request_id immediately - client will poll for status
-    return new Response(JSON.stringify({ 
-      requestId: request_id, 
+    console.log('Request submitted with ID:', requestId)
+
+    return new Response(JSON.stringify({
+      requestId,
       model,
       prompt,
       status: 'queued'
