@@ -34,7 +34,7 @@ Vite proxies `/api/*` to `:3001` in dev. In production, Vercel handles API route
 4. fal.ai queue returns `requestId` immediately
 5. Client polls `/api/status` every 5s until completed/failed
 
-**Models** (default: `seedream-v4-edit` → `fal-ai/bytedance/seedream/v4.5/edit`):
+**Models** (default: `seedream-v45-edit` → `fal-ai/bytedance/seedream/v4.5/edit`):
 - SeedDream v4.5 Edit — $0.03/image, LLM-enhanced prompts
 - FLUX 2 Edit — $0.024/image
 - Nano Banana Pro — $0.15/image

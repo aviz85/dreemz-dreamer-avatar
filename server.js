@@ -75,7 +75,7 @@ function getModelId(model) {
   switch (model) {
     case 'nano-banana-pro':
       return 'fal-ai/nano-banana-pro/edit'
-    case 'seedream-v4-edit':
+    case 'seedream-v45-edit':
       return 'fal-ai/bytedance/seedream/v4.5/edit'
     case 'flux-2-edit':
     default:
@@ -104,7 +104,7 @@ const server = createServer(async (req, res) => {
 
     req.on('end', async () => {
       try {
-        const { image, dream, model = 'seedream-v4-edit', promptTemplate } = JSON.parse(body)
+        const { image, dream, model = 'seedream-v45-edit', promptTemplate } = JSON.parse(body)
 
         if (!image || !dream) {
           res.writeHead(400, { 'Content-Type': 'application/json' })
@@ -123,7 +123,7 @@ const server = createServer(async (req, res) => {
 
         // Enhance prompt with LLM for SeedDream v4.5 edit model
         let prompt
-        if (model === 'seedream-v4-edit') {
+        if (model === 'seedream-v45-edit') {
           console.log('🎨 Enhancing prompt with LLM for SeedDream v4.5 edit...')
           prompt = await enhancePromptWithLLM(dream)
           console.log('✨ Enhanced prompt:', prompt.substring(0, 150) + '...')
@@ -137,7 +137,7 @@ const server = createServer(async (req, res) => {
 
         // Get model-specific parameters
         let inputParams
-        if (model === 'seedream-v4-edit') {
+        if (model === 'seedream-v45-edit') {
           inputParams = {
             prompt,
             image_urls: [image],

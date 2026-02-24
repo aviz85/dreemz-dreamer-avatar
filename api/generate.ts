@@ -5,7 +5,7 @@ export const config = {
   maxDuration: 60, // Allow up to 60 seconds for long-running operations
 }
 
-type ModelType = 'flux-2-edit' | 'nano-banana-pro' | 'seedream-v4-edit'           
+type ModelType = 'flux-2-edit' | 'nano-banana-pro' | 'seedream-v45-edit'           
 
 const DREAM_PLACEHOLDER = '{{DREAM}}'
 const DEFAULT_PROMPT_TEMPLATE = `Medium shot of this character ${DREAM_PLACEHOLDER}`
@@ -88,7 +88,7 @@ function getModelId(model: ModelType): string {
   switch (model) {
     case 'nano-banana-pro':
       return 'fal-ai/nano-banana-pro/edit'
-    case 'seedream-v4-edit':
+    case 'seedream-v45-edit':
       return 'fal-ai/bytedance/seedream/v4.5/edit'
     case 'flux-2-edit':
     default:
@@ -103,7 +103,7 @@ function getModelParams(model: ModelType, prompt: string, image: string) {
   }
 
   switch (model) {
-    case 'seedream-v4-edit':
+    case 'seedream-v45-edit':
       return {
         ...baseParams,
         image_size: 'portrait_4_3',
@@ -155,7 +155,7 @@ export default async function handler(request: Request): Promise<Response> {
 
   try {
     const body: RequestBody = await request.json()
-    const { image, dream, model = 'seedream-v4-edit', promptTemplate } = body
+    const { image, dream, model = 'seedream-v45-edit', promptTemplate } = body
 
     if (!image || !dream) {
       return new Response(
@@ -166,7 +166,7 @@ export default async function handler(request: Request): Promise<Response> {
 
     // Enhance prompt with LLM for SeedDream v4.5 edit model
     let prompt: string
-    if (model === 'seedream-v4-edit') {
+    if (model === 'seedream-v45-edit') {
       console.log('🎨 Enhancing prompt with LLM for SeedDream v4.5 edit...')
       prompt = await enhancePromptWithLLM(dream)
       console.log('✨ Enhanced prompt:', prompt.substring(0, 150) + '...')

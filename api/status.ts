@@ -54,7 +54,7 @@ export default async function handler(request: Request): Promise<Response> {
     })
 
     // Get model ID
-    const modelId = model === 'seedream-v4-edit' 
+    const modelId = model === 'seedream-v45-edit' 
       ? 'fal-ai/bytedance/seedream/v4.5/edit'
       : model === 'nano-banana-pro'
       ? 'fal-ai/nano-banana-pro/edit'
