@@ -8,7 +8,7 @@ type ModelType = 'flux-2-edit' | 'nano-banana-pro' | 'seedream-v45-edit'
 const DREAM_PLACEHOLDER = '{{DREAM}}'
 const DEFAULT_PROMPT_TEMPLATE = `Medium shot of this character ${DREAM_PLACEHOLDER}`
 
-const FAL_BASE = 'https://queue.fal.run'
+const FAL_QUEUE_BASE = 'https://queue.fal.run'
 
 interface RequestBody {
   image: string
@@ -159,8 +159,8 @@ export default async function handler(request: Request): Promise<Response> {
     const modelId = getModelId(model)
     const modelParams = getModelParams(model, prompt, image)
 
-    // Use fal.ai REST Queue API directly (no client library)
-    const falResponse = await fetch(`${FAL_BASE}/${modelId}`, {
+    // Submit to fal.ai Queue REST API
+    const falResponse = await fetch(`${FAL_QUEUE_BASE}/${modelId}`, {
       method: 'POST',
       headers: {
         'Authorization': `Key ${falKey}`,
@@ -176,12 +176,14 @@ export default async function handler(request: Request): Promise<Response> {
     }
 
     const falData = await falResponse.json()
-    const requestId = falData.request_id
+    console.log('Request submitted:', falData.request_id)
 
-    console.log('Request submitted with ID:', requestId)
-
+    // Return request_id AND the status/response URLs from fal.ai
+    // These URLs use a shortened path that's different from the model ID
     return new Response(JSON.stringify({
-      requestId,
+      requestId: falData.request_id,
+      statusUrl: falData.status_url,
+      responseUrl: falData.response_url,
       model,
       prompt,
       status: 'queued'

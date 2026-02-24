@@ -261,6 +261,8 @@ function App() {
       // If we got requestId, poll for status
       if (data.requestId) {
         const requestId = data.requestId
+        const statusUrl = data.statusUrl
+        const responseUrl = data.responseUrl
         const maxAttempts = 60 // 5 minutes max (5 second intervals)
         let attempts = 0
 
@@ -273,6 +275,8 @@ function App() {
             body: JSON.stringify({
               requestId,
               model: selectedModel,
+              statusUrl,
+              responseUrl,
             }),
           })
 
