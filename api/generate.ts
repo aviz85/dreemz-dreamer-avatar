@@ -1,6 +1,5 @@
 export const config = {
-  runtime: 'nodejs',
-  maxDuration: 60,
+  runtime: 'edge',
 }
 
 type ModelType = 'flux-2-edit' | 'nano-banana-pro' | 'seedream-v45-edit'
